@@ -642,6 +642,7 @@ done:
 int booth_tcp_open(struct booth_site *to)
 {
 	int s, rv;
+	struct sockaddr_in6 sa6_alligned;
 
 	if (to->tcp_fd >= STDERR_FILENO)
 		goto found;
@@ -652,8 +653,8 @@ int booth_tcp_open(struct booth_site *to)
 		return -1;
 	}
 
-
-	rv = connect_nonb(s, (struct sockaddr *)&to->sa6, to->saddrlen, 10);
+	sa6_alligned = to->sa6;
+	rv = connect_nonb(s, (struct sockaddr *)&sa6_alligned, to->saddrlen, 10);
 	if (rv == -1) {
 		if( errno == ETIMEDOUT)
 			log_error("connect to %s got a timeout", site_string(to));
@@ -1105,7 +1106,7 @@ int message_recv(void *msg, int msglen)
 		return from & (~0U >> 1);  /* avoid negative (error code} */
 	}
 
-	time(&source->last_recv);
+	source->last_recv = time(NULL);
 	source->recv_cnt++;
 
 	if (check_boothc_header(header, msglen) < 0) {

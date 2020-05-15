@@ -213,6 +213,7 @@ static int format_peers(char **pdata, unsigned int *len)
 	char *data, *cp;
 	char time_str[64];
 	int i, alloc;
+	time_t tmp_time;
 
 	*pdata = NULL;
 	*len = 0;
@@ -226,8 +227,10 @@ static int format_peers(char **pdata, unsigned int *len)
 	foreach_node(i, s) {
 		if (s == local)
 			continue;
+
+		tmp_time = s->last_recv;
 		strftime(time_str, sizeof(time_str), "%F %T",
-			localtime(&s->last_recv));
+			localtime(&tmp_time));
 		cp += snprintf(cp,
 				alloc - (cp - data),
 				"%-12s %s, last recv: %s\n",
