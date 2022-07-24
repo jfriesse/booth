@@ -395,7 +395,8 @@ int list_ticket(char **pdata, unsigned int *len)
 	char timeout_str[64];
 	char pending_str[64];
 	char *data, *cp;
-	int i, alloc, site_index;
+	int i, site_index;
+	size_t alloc;
 	time_t ts;
 	int multiple_grant_warning_length = 0;
 
