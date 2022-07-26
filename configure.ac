@@ -2,10 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 
 # bootstrap / init
-AC_PREREQ([2.61])
+AC_PREREQ([2.69])
 
 AC_INIT([booth],
-    m4_esyscmd([build-aux/git-version-gen --fallback 1.0 .tarball-version .gitarchivever]),
+    [m4_esyscmd([build-aux/git-version-gen --fallback 1.0 .tarball-version .gitarchivever])],
     [users@clusterlabs.org])
 
 AC_USE_SYSTEM_EXTENSIONS
@@ -14,7 +14,7 @@ AM_INIT_AUTOMAKE([-Wno-portability subdir-objects])
 
 AC_CONFIG_MACRO_DIR([build-aux])
 AC_CONFIG_SRCDIR([src/main.c])
-AC_CONFIG_HEADER([src/b_config.h src/booth_config.h])
+AC_CONFIG_HEADERS([src/b_config.h src/booth_config.h])
 
 AC_CANONICAL_HOST
 
@@ -106,7 +106,6 @@ AM_CONDITIONAL(PYTHON_IS_VERSION3, test "x${PYTHON_VERSION%%.*}" = "x3")
 # Checks for header files.
 AC_FUNC_ALLOCA
 AC_HEADER_DIRENT
-AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netdb.h netinet/in.h stdint.h \
 		  stdlib.h string.h sys/ioctl.h sys/param.h sys/socket.h \
@@ -133,7 +132,6 @@ AC_TYPE_INT64_T
 AC_TYPE_INT8_T
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
-AC_HEADER_TIME
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
@@ -150,7 +148,6 @@ AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_FUNC_REALLOC
 AC_FUNC_SELECT_ARGTYPES
-AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm alphasort atexit bzero dup2 endgrent endpwent fcntl \
 		getcwd getpeerucred getpeereid gettimeofday memmove \
@@ -371,11 +368,11 @@ fi
 dnl Check for POSIX clock_gettime
 dnl
 AC_CACHE_CHECK([have clock_gettime],ac_cv_HAVE_CLOCK_GETTIME,[
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <time.h>
-],
-[ struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0;],
-ac_cv_HAVE_CLOCK_GETTIME=yes,ac_cv_HAVE_CLOCK_GETTIME=no,ac_cv_HAVE_CLOCK_GETTIME=cross)])
+]],
+[[ struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0;]])],
+[ac_cv_HAVE_CLOCK_GETTIME=yes], [ac_cv_HAVE_CLOCK_GETTIME=no])])
 AM_CONDITIONAL(BUILD_TIMER_C, test x"$ac_cv_HAVE_CLOCK_GETTIME" = x"yes")
 
 # extra warnings
