@@ -8,7 +8,6 @@ ConditionFileNotEmpty=/etc/booth/%i.conf
 Conflicts=pacemaker.service
 
 [Install]
-Alias=boothd
 WantedBy=multi-user.target
 
 [Service]
