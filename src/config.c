@@ -699,7 +699,9 @@ no_value:
 			else if (strcasecmp(val, "SCTP") == 0)
 				booth_conf->proto = SCTP;
 			else {
-				error = "invalid transport protocol";
+				(void)snprintf(error_str_buf, sizeof(error_str_buf),
+				    "invalid transport protocol \"%s\"", val);
+				error = error_str_buf;
 				goto err;
 			}
 			got_transport = 1;
