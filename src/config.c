@@ -541,6 +541,7 @@ extern int poll_timeout;
 int read_config(const char *path, int type)
 {
 	char line[1024];
+	char error_str_buf[1024];
 	FILE *fp;
 	char *s, *key, *val, *end_of_key;
 	const char *error;
@@ -788,7 +789,9 @@ no_value:
 		 * we don't know to which ticket the key refers
 		 */
 		if (!current_tk) {
-			error = "Unexpected keyword";
+			(void)snprintf(error_str_buf, sizeof(error_str_buf),
+			    "Unexpected keyword \"%s\"", key);
+			error = error_str_buf;
 			goto err;
 		}
 
@@ -868,7 +871,9 @@ no_value:
 			continue;
 		}
 
-		error = "Unknown keyword";
+		(void)snprintf(error_str_buf, sizeof(error_str_buf),
+		    "Unknown keyword \"%s\"", key);
+		error = error_str_buf;
 		goto err;
 	}
 	fclose(fp);
