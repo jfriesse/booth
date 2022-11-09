@@ -110,7 +110,7 @@ class ServerTests(ServerTestEnvironment):
         config = re.sub('transport=.+', 'transport=SNEAKERNET', self.typical_config)
         (pid, ret, stdout, stderr, runner) = \
             self.run_booth(config_text=config, expected_exitcode=1, expected_daemon=False)
-        self.assertRegexpMatches(stderr, 'invalid transport protocol')
+        self.assertRegexpMatches(stderr, 'invalid transport protocol "SNEAKERNET"')
 
     def test_missing_final_newline(self):
         config = re.sub('\n$', '', self.working_config)
@@ -147,3 +147,17 @@ class ServerTests(ServerTestEnvironment):
         config = re.sub('#(.+147.+)', lambda m: m.group(1), self.working_config)
         self.run_booth(config_text=config,
                        expected_exitcode=None, expected_daemon=False)
+
+    def test_unknown_keyword(self):
+        # Test unexpected keyword before tickets definition
+        keyword='unknown-keyword'
+        config = re.sub('transport=', keyword + '=', self.typical_config)
+        (pid, ret, stdout, stderr, runner) = \
+            self.run_booth(config_text=config, expected_exitcode=1, expected_daemon=False)
+        self.assertRegexpMatches(stderr, 'Unexpected keyword "' + keyword + '"')
+
+        # Test unexpected keyword in tickets definition
+        config = re.sub('\n$', '\n' + keyword + '=value', self.typical_config)
+        (pid, ret, stdout, stderr, runner) = \
+            self.run_booth(config_text=config, expected_exitcode=1, expected_daemon=False)
+        self.assertRegexpMatches(stderr, 'Unknown keyword "' + keyword + '"')
