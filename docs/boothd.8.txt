@@ -230,6 +230,11 @@ will always bind and listen to both UDP and TCP ports.
 	parameter to a higher value. The time skew test is performed
 	only in concert with authentication.
 
+*'debug'*::
+	Specifies the debug output level. Alternative to
+	command line argument. Effective only for 'daemon'
+	mode of operation.
+
 *'site'*::
 	Defines a site Raft member with the given IP. Sites can
 	acquire tickets. The sites' IP should be managed by the cluster.
@@ -375,11 +380,6 @@ is up to date, i.e. if it actually reflects the current state.
 By default all tickets are automatic (that is, they are fully
 controlled by Raft algorithm). Assign the strings "manual" or
 "MANUAL" to define the ticket as manually controlled.
-
-*'debug'*::
-	Specifies the debug output level. Alternative to
-	command line argument. Effective only for 'daemon'
-	mode of operation.
 
 One example of a booth configuration file:
 
