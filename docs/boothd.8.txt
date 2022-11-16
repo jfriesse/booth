@@ -258,8 +258,8 @@ might not exists, so there we default to 'nobody':'nobody'.
 	Registers a ticket. Multiple tickets can be handled by single
 	Booth instance.
 +
-Use the special ticket name '__defaults__' to modify the
-defaults. The '__defaults__' stanza must precede all the other
+Use the special ticket name `__defaults__` to modify the
+defaults. The `__defaults__` stanza must precede all the other
 ticket specifications.
 
 All times are in seconds.
