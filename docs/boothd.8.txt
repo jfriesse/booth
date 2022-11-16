@@ -119,13 +119,13 @@ Whether the binary is called as 'boothd' or 'booth' doesn't matter; the first
 argument determines the mode of operation.
 
 
-*'daemon'*::
+'daemon'::
 	Tells 'boothd' to serve a site. The locally configured interfaces are
 	searched for an IP address that is defined in the configuration.
 	booth then runs in either /arbitrator/ or /site/ mode.
 
 
-*'client'*::
+'client'::
 	Booth clients can list the ticket information (see also 'crm_ticket -L'),
 	and revoke or grant tickets to a site.
 +
@@ -147,13 +147,13 @@ interfaces, it knows which site it belongs to.
 Use '-s' to direct client to connect to a different site.
 
 
-*'status'*::
+'status'::
 	'boothd' looks for the (locked) PID file and the UDP socket, prints
 	some output to stdout (for use in shell scripts) and returns
 	an OCF-compatible return code.
 	With '-D', a human-readable message is printed to STDERR as well.
 
-*'peers'*::
+'peers'::
 	List the other 'boothd' servers we know about.
 +
 In addition to the type, name (IP address), and the last time the
@@ -202,17 +202,17 @@ and end of the line, and around the ''='', are ignored.
 
 The following key/value pairs are defined:
 
-*'port'*::
+'port'::
 	The UDP/TCP port to use. Default is '9929'.
 
-*'transport'*::
+'transport'::
 	The transport protocol to use for Raft exchanges.
 	Currently only UDP is supported.
 +
 Clients use TCP to communicate with a daemon; Booth 
 will always bind and listen to both UDP and TCP ports.
 
-*'authfile'*::
+'authfile'::
 	File containing the authentication key. The key can be either
 	binary or text. If the latter, then both leading and trailing
 	white space, including new lines, is ignored. This key is a
@@ -220,7 +220,7 @@ will always bind and listen to both UDP and TCP ports.
 	servers. The key must be between 8 and 64 characters long and
 	be readable only by the file owner.
 
-*'maxtimeskew'*::
+'maxtimeskew'::
 	As protection against replay attacks, packets contain
 	generation timestamps. Such a timestamp is not allowed to be
 	too old. Just how old can be specified with this parameter.
@@ -230,16 +230,16 @@ will always bind and listen to both UDP and TCP ports.
 	parameter to a higher value. The time skew test is performed
 	only in concert with authentication.
 
-*'debug'*::
+'debug'::
 	Specifies the debug output level. Alternative to
 	command line argument. Effective only for 'daemon'
 	mode of operation.
 
-*'site'*::
+'site'::
 	Defines a site Raft member with the given IP. Sites can
 	acquire tickets. The sites' IP should be managed by the cluster.
 
-*'arbitrator'*::
+'arbitrator'::
 	Defines an arbitrator Raft member with the given IP.
 	Arbitrators help reach consensus in elections and cannot hold
 	tickets.
@@ -247,14 +247,14 @@ will always bind and listen to both UDP and TCP ports.
 Booth needs at least three members for normal operation. Odd
 number of members provides more redundancy.
 
-*'site-user'*, *'site-group'*, *'arbitrator-user'*, *'arbitrator-group'*::
+'site-user', 'site-group', 'arbitrator-user', 'arbitrator-group'::
 	These define the credentials 'boothd' will be running with.
 +
 On a (Pacemaker) site the booth process will have to call 'crm_ticket', so the 
 default is to use 'hacluster':'haclient'; for an arbitrator this user and group 
 might not exists, so there we default to 'nobody':'nobody'.
 
-*'ticket'*::
+'ticket'::
 	Registers a ticket. Multiple tickets can be handled by single
 	Booth instance.
 +
@@ -264,14 +264,14 @@ ticket specifications.
 
 All times are in seconds.
 
-*'expire'*::
+'expire'::
 	The lease time for a ticket. After that time the ticket can be 
 	acquired by another site if the ticket holder is not
 	reachable.
 +
 The default is '600'.
 
-*'acquire-after'*::
+'acquire-after'::
 	Once a ticket is lost, wait this time in addition before
 	acquiring the ticket.
 +
@@ -283,7 +283,7 @@ the protected resources and the fencing configuration.
 +
 The default is '0'.
 
-*'renewal-freq'*::
+'renewal-freq'::
 	Set the ticket renewal frequency period.
 +
 If the network reliability is often reduced over prolonged
@@ -294,14 +294,14 @@ specified in 'before-acquire-handler' is run. In that case the
 'renewal-freq' parameter is effectively also the local cluster
 monitoring interval.
 
-*'timeout'*::
+'timeout'::
 	After that time 'booth' will re-send packets if there was an
 	insufficient number of replies. This should be long enough to
 	allow packets to reach other members.
 +
 The default is '5'.
 
-*'retries'*::
+'retries'::
 	Defines how many times to retry sending packets before giving
 	up waiting for acks from other members.
 +
@@ -309,18 +309,18 @@ Default is '10'. Values lower than 3 are illegal.
 +
 Ticket renewals should allow for this number of retries. Hence,
 the total retry time must be shorter than the renewal time
-(either half the expire time or *'renewal-freq'*):
+(either half the expire time or 'renewal-freq'):
 
 	timeout*(retries+1) < renewal
 
-*'weights'*::
+'weights'::
 	A comma-separated list of integers that define the weight of individual 
 	Raft members, in the same order as the 'site' and 'arbitrator' lines.
 +
 Default is '0' for all; this means that the order in the configuration 
 file defines priority for conflicting requests.
 
-*'before-acquire-handler'*::
+'before-acquire-handler'::
 	If set, this parameter specifies either a file containing a
 	program to be run or a directory where a number of programs
 	can reside. They are invoked before 'boothd' tries to acquire
@@ -342,7 +342,7 @@ See below for details about booth specific environment variables.
 The distributed 'service-runnable' script is an example which may
 be used to test whether a pacemaker resource can be started.
 
-*'attr-prereq'*::
+'attr-prereq'::
 	Sites can have GEO attributes managed with the 'geostore(8)'
 	program. Attributes are within ticket's scope and may be
 	tested by 'boothd' for additional control of ticket failover
@@ -374,7 +374,7 @@ human.
 Note that there can be no guarantee on whether an attribute value
 is up to date, i.e. if it actually reflects the current state.
 
-*'mode'*::
+'mode'::
 	Specifies if the ticket is manual or automatic.
 +
 By default all tickets are automatic (that is, they are fully
@@ -470,19 +470,19 @@ Currently, there's only one external handler defined (see the
 
 The following environment variables are exported to the handler:
 
-*'BOOTH_TICKET'::
+'BOOTH_TICKET'::
 	The ticket name, as given in the configuration file. (See 'ticket' item above.)
 
-*'BOOTH_LOCAL'::
+'BOOTH_LOCAL'::
 	The local site name, as defined in 'site'.
 
-*'BOOTH_CONF_PATH'::
+'BOOTH_CONF_PATH'::
 	The path to the active configuration file.
 
-*'BOOTH_CONF_NAME'::
+'BOOTH_CONF_NAME'::
 	The configuration name, as used by the '-c' commandline argument.
 
-*'BOOTH_TICKET_EXPIRES'::
+'BOOTH_TICKET_EXPIRES'::
 	When the ticket expires (in seconds since 1.1.1970), or '0'.
 
 The handler is invoked with positional arguments specified after
@@ -491,14 +491,14 @@ it.
 FILES
 -----
 
-*'/etc/booth/booth.conf'*::
+'/etc/booth/booth.conf'::
 	The default configuration file name. See also the '-c' argument.
 
-*'/etc/booth/authkey'*::
+'/etc/booth/authkey'::
 	There is no default, but this is a typical location for the
 	shared secret (authentication key).
 
-*'/var/run/booth/'*::
+'/var/run/booth/'::
 	Directory that holds PID/lock files. See also the 'status' command.
 
 

@@ -82,22 +82,22 @@ Per default 'booth' is used, which results in the path
 COMMANDS
 --------
 
-*'set'*::
+'set'::
 	Sets the attribute to the value.
 
 
-*'get'*::
+'get'::
 	Get the attribute value and print it to 'stdout'. If the
 	attribute doesn't exist, appropriate error message is printed
 	to 'stderr'.
 
 
-*'delete'*::
+'delete'::
 	Delete the attribute. If the attribute doesn't exist,
 	appropriate error message is printed to 'stderr'.
 
 
-*'list'*::
+'list'::
 	List all attributes and their values stored at the site.
 
 
