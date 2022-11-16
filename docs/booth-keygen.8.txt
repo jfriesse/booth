@@ -22,7 +22,7 @@ using '/dev/urandom' as source.
 PARAMETERS
 ----------
 
-*'auth-file'*::
+'auth-file'::
 	The file to contain the generated key. Defaults to
 	'/etc/booth/authkey'. Use absolute paths.
 

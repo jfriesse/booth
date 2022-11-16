@@ -23,6 +23,7 @@ booth-*.tar*
 
 conf/booth*.service
 docs/*.8
+docs/*.8.html
 script/service-runnable
 script/unit-test.py
 src/b_config.h.in
