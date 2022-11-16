@@ -66,9 +66,9 @@ The configuration name also determines the name of the PID file - for the defaul
 *-s*::
 	Site address or name.
 +
-	The special value 'other' can be used to specify the other
-	site. Obviously, in that case, the booth configuration must
-	have exactly two sites defined.
+The special value 'other' can be used to specify the other
+site. Obviously, in that case, the booth configuration must
+have exactly two sites defined.
 
 *-F*::
 	'immediate grant': Don't wait for unreachable sites to
@@ -78,10 +78,10 @@ The configuration name also determines the name of the PID file - for the defaul
 	which is currently granted. See the 'Manual tickets' section
 	below for more details.
 +
-	This option may be DANGEROUS. It makes booth grant the ticket
-	even though it cannot ascertain that unreachable sites don't
-	hold the same ticket. It is up to the user to make sure that
-	unreachable sites don't have this ticket as granted.
+This option may be DANGEROUS. It makes booth grant the ticket
+even though it cannot ascertain that unreachable sites don't
+hold the same ticket. It is up to the user to make sure that
+unreachable sites don't have this ticket as granted.
 
 *-w*::
 	'wait for the request outcome': The client waits for the
