@@ -364,7 +364,7 @@ static int setup_config(int type)
 	if (rv < 0)
 		goto out;
 
-	if (booth_conf->authfile[0] != '\0') {
+	if (booth_conf->authfile[0] != '\0' && booth_conf->enable_authfile) {
 		rv = read_authkey();
 		if (rv < 0)
 			goto out;

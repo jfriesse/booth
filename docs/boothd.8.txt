@@ -230,6 +230,13 @@ will always bind and listen to both UDP and TCP ports.
 	parameter to a higher value. The time skew test is performed
 	only in concert with authentication.
 
+'enable-authfile'::
+	Enables (or disables) usage of authfile. Can be 'yes' or 'no'.
+	Default is 'no'.
+	This is non-upstream option used to allow use of authfile without
+	breaking compatibility for clusters consisting of mixed
+	versions of booth.
+
 'debug'::
 	Specifies the debug output level. Alternative to
 	command line argument. Effective only for 'daemon'

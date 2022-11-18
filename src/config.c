@@ -732,6 +732,23 @@ no_value:
 			booth_conf->maxtimeskew = atoi(val);
 			continue;
 		}
+
+		if (strcmp(key, "enable-authfile") == 0) {
+			if (strcasecmp(val, "yes") == 0 ||
+			    strcasecmp(val, "on") == 0 ||
+			    strcasecmp(val, "1") == 0) {
+				booth_conf->enable_authfile = 1;
+			} else if (strcasecmp(val, "no") == 0 ||
+			    strcasecmp(val, "off") == 0 ||
+			    strcasecmp(val, "0") == 0) {
+				booth_conf->enable_authfile = 0;
+			} else {
+				error = "Expected yes/no value for enable-authfile";
+				goto err;
+			}
+
+			continue;
+		}
 #endif
 
 		if (strcmp(key, "site") == 0) {

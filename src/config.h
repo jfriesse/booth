@@ -297,6 +297,7 @@ struct booth_config {
 	struct stat authstat;
 	char authkey[BOOTH_MAX_KEY_LEN];
 	int authkey_len;
+	int enable_authfile;
     /** Maximum time skew between peers allowed */
 	int maxtimeskew;
 
