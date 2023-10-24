@@ -75,7 +75,7 @@ static int pcmk_write_ticket_atomic(struct ticket_config *tk, int grant)
 	rv = system(cmd);
 	log_debug("command: '%s' was executed", cmd);
 	if (rv != 0)
-		log_error("error: \"%s\" failed, %s", cmd, interpret_rv(rv));
+		log_error("\"%s\" failed, %s", cmd, interpret_rv(rv));
 
 	return rv;
 }
