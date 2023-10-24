@@ -33,76 +33,7 @@
 #include "inline-fn.h"
 
 
-enum atomic_ticket_supported {
-	YES=0,
-	NO,
-	FILENOTFOUND,  /* Ie. UNKNOWN */
-	UNKNOWN = FILENOTFOUND,
-};
-/* http://thedailywtf.com/Articles/What_Is_Truth_0x3f_.aspx */
-
-
-enum atomic_ticket_supported atomicity = UNKNOWN;
-
-
-
 #define COMMAND_MAX	1024
-
-
-/** Determines whether the installed crm_ticket can do atomic ticket grants,
- * _including_ multiple attribute changes.
- *
- * See
- *   https://bugzilla.novell.com/show_bug.cgi?id=855099
- *
- * Run "crm_ticket" without "--force";
- *   - the old version asks for "Y/N" via STDIN, and returns 0
- *     when reading "no";
- *   - the new version just reports an error without asking.
- *     Since 2.0.0-rc2 error code is changed from 1 (EPERM) to 4 (CRM_EX_INSUFFICIENT_PRIV)
- */
-static void test_atomicity(void)
-{
-	int rv;
-
-	if (atomicity != UNKNOWN)
-		return;
-
-	rv = system("echo n | crm_ticket -g -t any-ticket-name > /dev/null 2> /dev/null");
-	if (rv == -1) {
-		log_error("Cannot run \"crm_ticket\"!");
-		/* BIG problem. Abort. */
-		exit(1);
-	}
-
-	if (WIFSIGNALED(rv)) {
-		log_error("\"crm_ticket\" terminated by a signal!");
-		/* Problem. Abort. */
-		exit(1);
-	}
-
-	switch (WEXITSTATUS(rv)) {
-	case 0:
-		atomicity = NO;
-		log_info("Old \"crm_ticket\" found, using non-atomic ticket updates.");
-		break;
-
-	case 1: /* Pacemaker < 2.0.0-rc2 - EPERM */
-	case 4: /* Pacemaker >= 2.0.0-rc2 - CRM_EX_INSUFFICIENT_PRIV */
-		atomicity = YES;
-		log_info("New \"crm_ticket\" found, using atomic ticket updates.");
-		break;
-
-	default:
-		log_error("Unexpected return value from \"crm_ticket\" (%d), "
-				"falling back to non-atomic ticket updates.",
-				WEXITSTATUS(rv));
-		atomicity = NO;
-	}
-
-	assert(atomicity == YES || atomicity == NO);
-}
-
 
 const char * interpret_rv(int rv)
 {
@@ -124,7 +55,6 @@ static int pcmk_write_ticket_atomic(struct ticket_config *tk, int grant)
 {
 	char cmd[COMMAND_MAX];
 	int rv;
-
 
 	/* The values are appended to "-v", so that NO_ONE
 	 * (which is -1) isn't seen as another option. */
@@ -151,55 +81,17 @@ static int pcmk_write_ticket_atomic(struct ticket_config *tk, int grant)
 }
 
 
-static int pcmk_store_ticket_nonatomic(struct ticket_config *tk);
-
 static int pcmk_grant_ticket(struct ticket_config *tk)
 {
-	char cmd[COMMAND_MAX];
-	int rv;
 
-
-	test_atomicity();
-	if (atomicity == YES)
-		return pcmk_write_ticket_atomic(tk, +1);
-
-
-	rv = pcmk_store_ticket_nonatomic(tk);
-	if (rv)
-		return rv;
-
-	snprintf(cmd, COMMAND_MAX, "crm_ticket -t %s -g --force",
-			tk->name);
-	log_debug("command: '%s' was executed", cmd);
-	rv = system(cmd);
-	if (rv != 0)
-		log_error("error: \"%s\" failed, %s", cmd, interpret_rv(rv));
-	return rv;
+	return pcmk_write_ticket_atomic(tk, +1);
 }
 
 
 static int pcmk_revoke_ticket(struct ticket_config *tk)
 {
-	char cmd[COMMAND_MAX];
-	int rv;
 
-
-	test_atomicity();
-	if (atomicity == YES)
-		return pcmk_write_ticket_atomic(tk, -1);
-
-
-	rv = pcmk_store_ticket_nonatomic(tk);
-	if (rv)
-		return rv;
-
-	snprintf(cmd, COMMAND_MAX, "crm_ticket -t %s -r --force",
-			tk->name);
-	log_debug("command: '%s' was executed", cmd);
-	rv = system(cmd);
-	if (rv != 0)
-		log_error("error: \"%s\" failed, %s", cmd, interpret_rv(rv));
-	return rv;
+	return pcmk_write_ticket_atomic(tk, -1);
 }
 
 
@@ -215,16 +107,6 @@ static int _run_crm_ticket(char *cmd)
 	log_debug("'%s' gave result %s", cmd, interpret_rv(rv));
 
 	return rv;
-}
-
-static int crm_ticket_set_int(const struct ticket_config *tk, const char *attr, int64_t val)
-{
-	char cmd[COMMAND_MAX];
-
-	snprintf(cmd, COMMAND_MAX,
-		 "crm_ticket -t '%s' -S '%s' -v %" PRIi64,
-		 tk->name, attr, val);
-	return _run_crm_ticket(cmd);
 }
 
 static int pcmk_set_attr(struct ticket_config *tk, const char *attr, const char *val)
@@ -247,25 +129,6 @@ static int pcmk_del_attr(struct ticket_config *tk, const char *attr)
 	return _run_crm_ticket(cmd);
 }
 
-
-static int pcmk_store_ticket_nonatomic(struct ticket_config *tk)
-{
-	int rv;
-
-	/* Always try to store *each* attribute, even if there's an error
-	 * for one of them. */
-	rv = crm_ticket_set_int(tk, "owner", (int32_t)get_node_id(tk->leader));
-	rv = crm_ticket_set_int(tk, "expires", wall_ts(&tk->term_expires))  || rv;
-	rv = crm_ticket_set_int(tk, "term", tk->current_term)     || rv;
-
-	if (rv)
-		log_error("setting crm_ticket attributes failed; %s",
-				interpret_rv(rv));
-	else
-		log_info("setting crm_ticket attributes successful");
-
-	return rv;
-}
 
 typedef int (*attr_f)(struct ticket_config *tk, const char *name,
 		      const char *val);
@@ -485,10 +348,6 @@ static int pcmk_load_ticket(struct ticket_config *tk)
 	char cmd[COMMAND_MAX];
 	int rv = 0, pipe_rv;
 	FILE *p;
-
-	/* This here gets run during startup; testing that here means that
-	 * normal operation won't be interrupted with that test. */
-	test_atomicity();
 
 	snprintf(cmd, COMMAND_MAX,
 			"crm_ticket -t '%s' -q",
