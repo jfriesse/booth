@@ -33,7 +33,7 @@
 #include "inline-fn.h"
 
 
-#define COMMAND_MAX	1024
+#define COMMAND_MAX	2048
 
 const char * interpret_rv(int rv)
 {
@@ -56,14 +56,14 @@ static int pcmk_write_ticket_atomic(struct ticket_config *tk, int grant)
 	char cmd[COMMAND_MAX];
 	int rv;
 
-	/* The values are appended to "-v", so that NO_ONE
-	 * (which is -1) isn't seen as another option. */
+	/* The long format (--attr-value=) for attribute value is used instead of "-v",
+	* so that NO_ONE (which is -1) isn't seen as another option. */
 	rv = snprintf(cmd, COMMAND_MAX,
 			"crm_ticket -t '%s' "
 			"%s --force "
-			"-S owner -v%" PRIi32 " "
-			"-S expires -v%" PRIi64 " "
-			"-S term -v%" PRIi64,
+			"-S owner --attr-value=%" PRIi32 " "
+			"-S expires --attr-value=%" PRIi64 " "
+			"-S term --attr-value=%" PRIi64,
 			tk->name,
 			(grant > 0 ? "-g" :
 			 grant < 0 ? "-r" :
@@ -120,7 +120,7 @@ static int pcmk_set_attr(struct ticket_config *tk, const char *attr, const char 
 	int rv;
 
 	rv = snprintf(cmd, COMMAND_MAX,
-		 "crm_ticket -t '%s' -S '%s' -v '%s'",
+		 "crm_ticket -t '%s' -S '%s' --attr-value='%s'",
 		 tk->name, attr, val);
 
 	if (rv < 0 || rv >= COMMAND_MAX) {
