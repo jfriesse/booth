@@ -58,7 +58,7 @@ static int pcmk_write_ticket_atomic(struct ticket_config *tk, int grant)
 
 	/* The values are appended to "-v", so that NO_ONE
 	 * (which is -1) isn't seen as another option. */
-	snprintf(cmd, COMMAND_MAX,
+	rv = snprintf(cmd, COMMAND_MAX,
 			"crm_ticket -t '%s' "
 			"%s --force "
 			"-S owner -v%" PRIi32 " "
@@ -71,6 +71,11 @@ static int pcmk_write_ticket_atomic(struct ticket_config *tk, int grant)
 			(int32_t)get_node_id(tk->leader),
 			(int64_t)wall_ts(&tk->term_expires),
 			(int64_t)tk->current_term);
+
+	if (rv < 0 || rv >= COMMAND_MAX) {
+		log_error("pcmk_write_ticket_atomic: cannot format crm_ticket cmdline (probably too long)");
+		return -1;
+	}
 
 	rv = system(cmd);
 	log_debug("command: '%s' was executed", cmd);
@@ -112,20 +117,34 @@ static int _run_crm_ticket(char *cmd)
 static int pcmk_set_attr(struct ticket_config *tk, const char *attr, const char *val)
 {
 	char cmd[COMMAND_MAX];
+	int rv;
 
-	snprintf(cmd, COMMAND_MAX,
+	rv = snprintf(cmd, COMMAND_MAX,
 		 "crm_ticket -t '%s' -S '%s' -v '%s'",
 		 tk->name, attr, val);
+
+	if (rv < 0 || rv >= COMMAND_MAX) {
+		log_error("pcmk_set_attr: cannot format crm_ticket cmdline (probably too long)");
+		return -1;
+	}
+
 	return _run_crm_ticket(cmd);
 }
 
 static int pcmk_del_attr(struct ticket_config *tk, const char *attr)
 {
 	char cmd[COMMAND_MAX];
+	int rv;
 
-	snprintf(cmd, COMMAND_MAX,
+	rv = snprintf(cmd, COMMAND_MAX,
 		 "crm_ticket -t '%s' -D '%s'",
 		 tk->name, attr);
+
+	if (rv < 0 || rv >= COMMAND_MAX) {
+		log_error("pcmk_del_attr: cannot format crm_ticket cmdline (probably too long)");
+		return -1;
+	}
+
 	return _run_crm_ticket(cmd);
 }
 
@@ -215,13 +234,18 @@ static int pcmk_get_attr(struct ticket_config *tk, const char *attr, const char 
 	char cmd[COMMAND_MAX];
 	char line[BOOTH_ATTRVAL_LEN+1];
 	int rv = 0, pipe_rv;
+	int res;
 	FILE *p;
 
 
 	*vp = NULL;
-	snprintf(cmd, COMMAND_MAX,
+	res = snprintf(cmd, COMMAND_MAX,
 			"crm_ticket -t '%s' -G '%s' --quiet",
 			tk->name, attr);
+	if (res < 0 || res >= COMMAND_MAX) {
+		log_error("pcmk_get_attr: cannot format crm_ticket cmdline (probably too long)");
+		return -1;
+	}
 
 	p = popen(cmd, "r");
 	if (p == NULL) {
@@ -347,11 +371,17 @@ static int pcmk_load_ticket(struct ticket_config *tk)
 {
 	char cmd[COMMAND_MAX];
 	int rv = 0, pipe_rv;
+	int res;
 	FILE *p;
 
-	snprintf(cmd, COMMAND_MAX,
+	res = snprintf(cmd, COMMAND_MAX,
 			"crm_ticket -t '%s' -q",
 			tk->name);
+
+	if (res < 0 || res >= COMMAND_MAX) {
+		log_error("pcmk_load_ticket: cannot format crm_ticket cmdline (probably too long)");
+		return -1;
+	}
 
 	p = popen(cmd, "r");
 	if (p == NULL) {
