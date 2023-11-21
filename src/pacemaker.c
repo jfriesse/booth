@@ -321,7 +321,6 @@ static int parse_ticket_state(struct ticket_config *tk, FILE *p)
 	GString *input = NULL;
 	char line[CHUNK_SIZE];
 	xmlDocPtr doc = NULL;
-	xmlErrorPtr	errptr;
 	int opts = XML_PARSE_COMPACT | XML_PARSE_NONET;
 
 	/* skip first two lines of output */
@@ -346,7 +345,7 @@ static int parse_ticket_state(struct ticket_config *tk, FILE *p)
 
 	doc = xmlReadDoc((const xmlChar *) input->str, NULL, NULL, opts);
 	if (doc == NULL) {
-		errptr = xmlGetLastError();
+		const xmlError *errptr = xmlGetLastError();
 		if (errptr) {
 			tk_log_error("crm_ticket xml parse failed (domain=%d, level=%d, code=%d): %s",
 					errptr->domain, errptr->level,
