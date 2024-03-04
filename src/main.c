@@ -729,7 +729,6 @@ static int query_get_string_answer(cmd_request_t cmd)
 	rv = tpt->recv(site, data, data_len);
 	if (rv < 0)
 		goto out_close;
-	*(data+data_len) = '\0';
 
 	*(data + data_len) = '\0';
 	(void)fputs(data, stdout);
