@@ -208,17 +208,16 @@ int _find_myself(int family, struct booth_site **mep, int fuzzy_allowed)
 			return 0;
 		}
 
-		h = (struct nlmsghdr *)rcvbuf;
-		if (h->nlmsg_type == NLMSG_DONE)
-			break;
+		for (h = (struct nlmsghdr *)rcvbuf; NLMSG_OK(h, status); h = NLMSG_NEXT(h, status)) {
+			if (h->nlmsg_type == NLMSG_DONE)
+				goto out;
 
-		if (h->nlmsg_type == NLMSG_ERROR) {
-			close(fd);
-			log_error("netlink socket recvmsg error");
-			return 0;
-		}
+			if (h->nlmsg_type == NLMSG_ERROR) {
+				close(fd);
+				log_error("netlink socket recvmsg error");
+				return 0;
+			}
 
-		while (NLMSG_OK(h, status)) {
 			if (h->nlmsg_type == RTM_NEWADDR) {
 				struct ifaddrmsg *ifa = NLMSG_DATA(h);
 				struct rtattr *tb[IFA_MAX+1];
@@ -271,10 +270,10 @@ int _find_myself(int family, struct booth_site **mep, int fuzzy_allowed)
 					}
 				}
 			}
-			h = NLMSG_NEXT(h, status);
 		}
 	}
 
+out:
 	close(fd);
 
 	if (!me)
