@@ -161,7 +161,6 @@ AC_CONFIG_FILES([Makefile
 		 docs/Makefile
 		 conf/Makefile])
 AC_CONFIG_FILES([conf/booth-arbitrator.service conf/booth@.service])
-AC_CONFIG_FILES([script/unit-test.py])
 AC_CONFIG_FILES([script/service-runnable], [chmod +x script/service-runnable])
 
 # ===============================================
