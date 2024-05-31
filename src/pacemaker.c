@@ -63,14 +63,16 @@ static int pcmk_write_ticket_atomic(struct ticket_config *tk, int grant)
 			"%s --force "
 			"-S owner --attr-value=%" PRIi32 " "
 			"-S expires --attr-value=%" PRIi64 " "
-			"-S term --attr-value=%" PRIi64,
+			"-S term --attr-value=%" PRIi64 " "
+			"-S booth-cfg-name --attr-value=%s",
 			tk->name,
 			(grant > 0 ? "-g" :
 			 grant < 0 ? "-r" :
 			 ""),
 			(int32_t)get_node_id(tk->leader),
 			(int64_t)wall_ts(&tk->term_expires),
-			(int64_t)tk->current_term);
+			(int64_t)tk->current_term,
+			booth_conf->name);
 
 	if (rv < 0 || rv >= COMMAND_MAX) {
 		log_error("pcmk_write_ticket_atomic: cannot format crm_ticket cmdline (probably too long)");
@@ -223,6 +225,7 @@ struct attr_tab attr_handlers[] = {
 	{ "owner", save_owner},
 	{ "id", ignore_attr},
 	{ "last-granted", ignore_attr},
+	{ "booth-cfg-name", ignore_attr},
 	{ NULL, 0},
 };
 
